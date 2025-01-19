@@ -14,19 +14,10 @@ class RouteServiceProvider extends ServiceProvider
 
      public function boot(): void
      {
-          RateLimiter::for('api', function (Request $request) {
-               return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-          });
+          $this->configureRateLimiting();
 
-          // Rate limiter untuk login
-          RateLimiter::for('login', function (Request $request) {
-               return Limit::perMinute(5)->by($request->ip());
-          });
-
-          // Rate limiter untuk register
-          RateLimiter::for('register', function (Request $request) {
-               return Limit::perMinute(3)->by($request->ip());
-          });
+          // Register admin middleware
+          $this->app['router']->aliasMiddleware('admin', \App\Http\Middleware\AdminMiddleware::class);
 
           $this->routes(function () {
                Route::middleware('api')

@@ -24,14 +24,15 @@ class AuthController extends Controller
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'password' => Hash::make($validated['password']),
+                    'role' => 'user',
+                    'status' => 'active'
                ]);
 
                Auth::login($user);
 
-               // Debug log untuk memeriksa status auth
-               Log::info('User registered and logged in:', [
+               Log::info('User registered successfully', [
                     'user_id' => $user->id,
-                    'is_authenticated' => Auth::check(),
+                    'user_role' => $user->role,
                ]);
 
                return redirect()->intended(route('movies.latest'))
@@ -46,43 +47,66 @@ class AuthController extends Controller
 
      public function login(Request $request)
      {
-          try {
-               $credentials = $request->validate([
-                    'email' => 'required|string|email',
-                    'password' => 'required|string',
-               ]);
+          $credentials = $request->validate([
+               'email' => 'required|email',
+               'password' => 'required'
+          ]);
 
-               if (Auth::attempt($credentials, $request->boolean('remember'))) {
+          try {
+               if (Auth::attempt($credentials, $request->remember)) {
                     $request->session()->regenerate();
 
-                    // Debug log untuk memeriksa status auth
-                    Log::info('User logged in:', [
-                         'user_id' => Auth::id(),
-                         'is_authenticated' => Auth::check(),
+                    // Update last login
+                    $user = Auth::user();
+                    $user->last_login_at = now();
+                    $user->save();
+
+                    // Debug log untuk memeriksa data user
+                    Log::info('User logged in successfully', [
+                         'user_id' => $user->id,
+                         'user_role' => $user->role,
+                         'is_admin' => $user->role === 'admin',
                     ]);
 
-                    return redirect()->intended(route('movies.latest'))
-                         ->with('success', 'Login berhasil! Selamat datang kembali!');
+                    // Redirect based on role
+                    if ($user->role === 'admin') {
+                         Log::info('Redirecting admin user to dashboard');
+                         return redirect()->intended(route('admin.dashboard'));
+                    }
+
+                    Log::info('Redirecting regular user to movies page');
+                    return redirect()->intended(route('movies.latest'));
                }
 
-               return back()
-                    ->withInput($request->except('password'))
-                    ->with('error', 'Email atau password salah.');
+               Log::warning('Failed login attempt', ['email' => $request->email]);
+               return back()->withErrors([
+                    'email' => 'Email atau password salah.',
+               ])->withInput($request->except('password'));
+
           } catch (\Exception $e) {
-               Log::error('Login error: ' . $e->getMessage());
-               return back()
-                    ->withInput($request->except('password'))
-                    ->with('error', 'Terjadi kesalahan saat login. Silakan coba lagi.');
+               Log::error('Login error', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+               ]);
+               return back()->withErrors([
+                    'error' => 'Terjadi kesalahan saat login. Silakan coba lagi.',
+               ]);
           }
      }
 
      public function logout(Request $request)
      {
-          Auth::logout();
-          $request->session()->invalidate();
-          $request->session()->regenerateToken();
+          try {
+               Auth::logout();
+               $request->session()->invalidate();
+               $request->session()->regenerateToken();
 
-          return redirect()->route('home')
-               ->with('success', 'Anda telah berhasil logout.');
+               return redirect()->route('home');
+          } catch (\Exception $e) {
+               Log::error('Logout error', ['error' => $e->getMessage()]);
+               return back()->withErrors([
+                    'error' => 'Terjadi kesalahan saat logout. Silakan coba lagi.',
+               ]);
+          }
      }
 }

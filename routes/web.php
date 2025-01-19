@@ -57,3 +57,22 @@ Route::middleware('auth')->group(function () {
         })->name('settings');
     });
 });
+
+// Admin Routes (Only for admin users)
+Route::group(['middleware' => ['auth', \App\Http\Middleware\AdminMiddleware::class], 'prefix' => 'admin', 'as' => 'admin.'], function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Admin/Dashboard');
+    })->name('dashboard');
+
+    Route::get('/movies', function () {
+        return Inertia::render('Admin/Movies');
+    })->name('movies');
+
+    Route::get('/users', function () {
+        return Inertia::render('Admin/Users');
+    })->name('users');
+
+    Route::get('/statistics', function () {
+        return Inertia::render('Admin/Statistics');
+    })->name('statistics');
+});

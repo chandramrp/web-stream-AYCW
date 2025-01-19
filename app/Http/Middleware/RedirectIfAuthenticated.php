@@ -17,17 +17,13 @@ class RedirectIfAuthenticated
 
           foreach ($guards as $guard) {
                if (Auth::guard($guard)->check()) {
-                    // Debug log untuk memeriksa redirect
-                    Log::info('RedirectIfAuthenticated: User is authenticated', [
-                         'user_id' => Auth::id(),
-                         'intended_url' => $request->intended(),
-                    ]);
+                    $user = Auth::guard($guard)->user();
 
-                    if ($request->expectsJson()) {
-                         return response()->json(['error' => 'Already authenticated.'], 200);
+                    if ($user->isAdmin()) {
+                         return redirect()->route('admin.dashboard');
                     }
 
-                    return redirect()->intended(route('movies.latest'));
+                    return redirect()->route('movies.latest');
                }
           }
 

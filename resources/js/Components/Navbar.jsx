@@ -12,25 +12,19 @@ export default function Navbar() {
     const [isSearchVisible, setIsSearchVisible] = useState(false);
     const searchButtonRef = useRef(null);
 
-    // Debug auth status dengan lebih detail
+    // Debug auth status
     useEffect(() => {
-        console.log("Auth Status:", {
-            authenticated: auth?.authenticated,
+        console.log("Navbar - Auth Data:", {
+            auth: auth,
             user: auth?.user,
-            fullAuth: auth,
-            pageProps: page.props,
+            role: auth?.user?.role,
+            isAdmin: auth?.user?.is_admin,
         });
-    }, [auth, page.props]);
-
-    useEffect(() => {
-        if (auth?.authenticated) {
-            setIsSearchVisible(false);
-        }
     }, [auth]);
 
     useEffect(() => {
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 20);
+            setIsScrolled(window.scrollY > 0);
         };
 
         window.addEventListener("scroll", handleScroll);
@@ -50,35 +44,35 @@ export default function Navbar() {
         setIsSearchVisible(!isSearchVisible);
     };
 
-    // Memastikan auth memiliki nilai default yang aman
-    const isAuthenticated = auth?.authenticated ?? false;
-    const user = auth?.user ?? null;
+    // Verifikasi auth dan user
+    const user = auth?.user;
+    const isAuthenticated = !!user;
 
-    // Debug render condition dengan nilai default
-    console.log("Render condition with defaults:", {
-        showUserMenu: isAuthenticated && user,
-        authUser: user,
-        isAuthenticated: isAuthenticated,
-        rawAuth: auth,
+    // Debug render conditions
+    console.log("Navbar - Render Conditions:", {
+        isAuthenticated,
+        user,
+        role: user?.role,
+        isAdmin: user?.is_admin,
     });
 
     // Render section berdasarkan nilai default yang aman
     const authSection =
         isAuthenticated && user ? (
-            <UserMenu user={user} />
+            <UserMenu />
         ) : (
             <>
                 <Link
                     href="/login"
-                    className="text-slate-300 hover:text-blue-400 transition-colors duration-200"
+                    className="text-slate-300 hover:text-white transition-colors duration-200"
                 >
-                    Masuk
+                    Login
                 </Link>
                 <Link
                     href="/register"
-                    className="bg-blue-600/90 text-slate-200 px-3 py-1.5 rounded-md hover:bg-blue-600 transition-colors duration-200"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
                 >
-                    Daftar
+                    Register
                 </Link>
             </>
         );

@@ -1,10 +1,29 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link, router } from "@inertiajs/react";
-import { FaUser, FaSignOutAlt, FaHistory, FaCog } from "react-icons/fa";
+import { Link, usePage } from "@inertiajs/react";
+import {
+    FaUserCircle,
+    FaHistory,
+    FaCog,
+    FaSignOutAlt,
+    FaTachometerAlt,
+    FaFilm,
+    FaUsers,
+    FaChartBar,
+} from "react-icons/fa";
 
-export default function UserMenu({ user }) {
+export default function UserMenu() {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
+    const { auth } = usePage().props;
+    const user = auth?.user;
+
+    // Debug: Log user data
+    console.log("UserMenu - Full Props:", usePage().props);
+    console.log("UserMenu - Auth Object:", auth);
+    console.log("UserMenu - User Object:", user);
+    console.log("UserMenu - Role:", user?.role);
+    console.log("UserMenu - Status:", user?.status);
+    console.log("UserMenu - Is Admin:", user?.is_admin);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -18,74 +37,108 @@ export default function UserMenu({ user }) {
             document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const handleLogout = () => {
-        router.post("/logout");
-    };
+    // Cek role dan is_admin dengan lebih detail
+    const isAdmin = user?.role === "admin" || user?.is_admin === true;
+    console.log("UserMenu - Final isAdmin value:", isAdmin);
+
+    // Menu items berdasarkan role
+    const menuItems = isAdmin
+        ? [
+              {
+                  icon: FaTachometerAlt,
+                  label: "Dashboard Admin",
+                  href: "/admin/dashboard",
+              },
+              {
+                  icon: FaFilm,
+                  label: "Kelola Film",
+                  href: "/admin/movies",
+              },
+              {
+                  icon: FaUsers,
+                  label: "Kelola User",
+                  href: "/admin/users",
+              },
+              {
+                  icon: FaChartBar,
+                  label: "Statistik",
+                  href: "/admin/statistics",
+              },
+          ]
+        : [
+              {
+                  icon: FaHistory,
+                  label: "Riwayat Tontonan",
+                  href: "/user/history",
+              },
+              {
+                  icon: FaCog,
+                  label: "Pengaturan",
+                  href: "/user/settings",
+              },
+          ];
 
     return (
         <div className="relative" ref={menuRef}>
-            {/* Avatar Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors duration-200"
+                className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors duration-200"
             >
-                {user.avatar ? (
+                {user?.avatar ? (
                     <img
                         src={user.avatar}
                         alt={user.name}
                         className="w-8 h-8 rounded-full object-cover"
                     />
                 ) : (
-                    <FaUser className="w-4 h-4 text-slate-300" />
+                    <FaUserCircle className="w-8 h-8" />
+                )}
+                <span>{user?.name}</span>
+                {isAdmin && (
+                    <span className="ml-2 px-2 py-0.5 text-xs bg-blue-500 text-white rounded-full">
+                        Admin
+                    </span>
                 )}
             </button>
 
-            {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-64 rounded-md shadow-lg py-1 bg-slate-800 ring-1 ring-black ring-opacity-5">
+                <div className="absolute right-0 mt-2 w-48 py-2 bg-slate-800 rounded-lg shadow-xl border border-slate-700">
                     {/* User Info */}
-                    <div className="px-4 py-3 border-b border-slate-700">
-                        <p className="text-sm font-medium text-slate-200">
-                            {user.name}
-                        </p>
-                        <p className="text-sm text-slate-400 truncate">
-                            {user.email}
+                    <div className="px-4 py-2 border-b border-slate-700">
+                        <p className="text-sm text-slate-200">{user?.name}</p>
+                        <p className="text-xs text-slate-400">{user?.email}</p>
+                        <p className="text-xs text-blue-400 mt-1">
+                            {isAdmin ? "Administrator" : "User"}
                         </p>
                     </div>
 
                     {/* Menu Items */}
                     <div className="py-1">
-                        <Link
-                            href="/profile"
-                            className="flex items-center px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-blue-400 transition-colors duration-200"
-                        >
-                            <FaUser className="w-4 h-4 mr-3" />
-                            Profil
-                        </Link>
-                        <Link
-                            href="/watchlist"
-                            className="flex items-center px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-blue-400 transition-colors duration-200"
-                        >
-                            <FaHistory className="w-4 h-4 mr-3" />
-                            Watchlist
-                        </Link>
-                        <Link
-                            href="/settings"
-                            className="flex items-center px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-blue-400 transition-colors duration-200"
-                        >
-                            <FaCog className="w-4 h-4 mr-3" />
-                            Pengaturan
-                        </Link>
-
-                        {/* Logout */}
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center w-full px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-red-400 transition-colors duration-200"
-                        >
-                            <FaSignOutAlt className="w-4 h-4 mr-3" />
-                            Keluar
-                        </button>
+                        {menuItems.map((item, index) => (
+                            <Link
+                                key={index}
+                                href={item.href}
+                                className="flex items-center px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors duration-200"
+                            >
+                                <item.icon className="w-4 h-4 mr-2" />
+                                {item.label}
+                            </Link>
+                        ))}
                     </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-slate-700 my-1"></div>
+
+                    {/* Logout */}
+                    <Link
+                        href="/logout"
+                        method="post"
+                        as="button"
+                        className="w-full flex items-center px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 transition-colors duration-200"
+                    >
+                        <FaSignOutAlt className="w-4 h-4 mr-2" />
+                        Logout
+                    </Link>
                 </div>
             )}
         </div>

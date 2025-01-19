@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Middleware;
+use App\Models\User;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -36,43 +37,43 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        // Debug raw user data
-        Log::info('Raw user data:', [
-            'has_user' => $request->user() !== null,
-            'session_id' => session()->getId(),
-            'raw_user' => $request->user(),
-        ]);
+        $user = $request->user();
+        $userData = null;
 
-        $auth = [
-            'user' => $request->user() ? [
-                'id' => $request->user()->id,
-                'name' => $request->user()->name,
-                'email' => $request->user()->email,
-                'avatar' => $request->user()->avatar ?? null,
-                'created_at' => $request->user()->created_at,
-            ] : null,
-            'authenticated' => $request->user() !== null,
-        ];
+        if ($user) {
+            // Get fresh user data
+            $freshUser = User::find($user->id);
 
-        // Debug processed auth data
-        Log::info('Processed auth data:', $auth);
+            // Debug log
+            Log::info('User data in HandleInertiaRequests:', [
+                'raw_user' => $freshUser->toArray(),
+                'role' => $freshUser->role,
+                'status' => $freshUser->status
+            ]);
 
-        $shared = array_merge(parent::share($request), [
-            'auth' => $auth,
-            'flash' => [
-                'message' => session('message'),
-                'error' => session('error'),
-                'success' => session('success'),
+            // Build user data
+            $userData = array_merge($freshUser->only(
+                'id',
+                'name',
+                'email',
+                'role',
+                'status',
+                'avatar',
+                'created_at'
+            ), [
+                'is_admin' => $freshUser->role === 'admin'
+            ]);
+        }
+
+        return array_merge(parent::share($request), [
+            'auth' => [
+                'user' => $userData
             ],
-            'status' => session('status'),
+            'flash' => [
+                'message' => $request->session()->get('message'),
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error')
+            ]
         ]);
-
-        // Debug final shared data
-        Log::info('Final shared data:', [
-            'has_auth' => isset($shared['auth']),
-            'auth_data' => $shared['auth'],
-        ]);
-
-        return $shared;
     }
 }
