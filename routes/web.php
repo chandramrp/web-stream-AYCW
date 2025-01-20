@@ -124,7 +124,5 @@ Route::group(['middleware' => ['auth', \App\Http\Middleware\AdminMiddleware::cla
     Route::post('/users/{user}/status', [\App\Http\Controllers\Admin\UserController::class, 'updateStatus'])->name('users.status');
     Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
 
-    Route::get('/statistics', function () {
-        return Inertia::render('Admin/Statistics');
-    })->name('statistics');
+    Route::get('/statistics', [\App\Http\Controllers\Admin\StatisticsController::class, 'index'])->name('statistics');
 });
