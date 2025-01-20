@@ -14,16 +14,20 @@ import {
 export default function UserMenu() {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
-    const { auth } = usePage().props;
+    const page = usePage();
+    const { auth } = page.props;
     const user = auth?.user;
 
     // Debug: Log user data
-    console.log("UserMenu - Full Props:", usePage().props);
-    console.log("UserMenu - Auth Object:", auth);
-    console.log("UserMenu - User Object:", user);
-    console.log("UserMenu - Role:", user?.role);
-    console.log("UserMenu - Status:", user?.status);
-    console.log("UserMenu - Is Admin:", user?.is_admin);
+    useEffect(() => {
+        console.log("UserMenu - Props:", {
+            auth,
+            user,
+            role: user?.role,
+            status: user?.status,
+            isAdmin: user?.is_admin,
+        });
+    }, [auth, user]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -39,7 +43,6 @@ export default function UserMenu() {
 
     // Cek role dan is_admin dengan lebih detail
     const isAdmin = user?.role === "admin" || user?.is_admin === true;
-    console.log("UserMenu - Final isAdmin value:", isAdmin);
 
     // Menu items berdasarkan role
     const menuItems = isAdmin
@@ -108,7 +111,7 @@ export default function UserMenu() {
                         <p className="text-sm text-slate-200">{user?.name}</p>
                         <p className="text-xs text-slate-400">{user?.email}</p>
                         <p className="text-xs text-blue-400 mt-1">
-                            {isAdmin ? "Administrator" : "User"}
+                            {user?.role === "admin" ? "Administrator" : "User"}
                         </p>
                     </div>
 

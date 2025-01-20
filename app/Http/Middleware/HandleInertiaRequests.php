@@ -48,21 +48,21 @@ class HandleInertiaRequests extends Middleware
             Log::info('User data in HandleInertiaRequests:', [
                 'raw_user' => $freshUser->toArray(),
                 'role' => $freshUser->role,
-                'status' => $freshUser->status
+                'status' => $freshUser->status,
+                'is_admin' => $freshUser->isAdmin()
             ]);
 
             // Build user data
-            $userData = array_merge($freshUser->only(
-                'id',
-                'name',
-                'email',
-                'role',
-                'status',
-                'avatar',
-                'created_at'
-            ), [
-                'is_admin' => $freshUser->role === 'admin'
-            ]);
+            $userData = [
+                'id' => $freshUser->id,
+                'name' => $freshUser->name,
+                'email' => $freshUser->email,
+                'role' => $freshUser->role,
+                'status' => $freshUser->status,
+                'is_admin' => $freshUser->isAdmin(),
+                'avatar' => $freshUser->avatar,
+                'created_at' => $freshUser->created_at
+            ];
         }
 
         return array_merge(parent::share($request), [
@@ -70,9 +70,9 @@ class HandleInertiaRequests extends Middleware
                 'user' => $userData
             ],
             'flash' => [
-                'message' => $request->session()->get('message'),
-                'success' => $request->session()->get('success'),
-                'error' => $request->session()->get('error')
+                'message' => fn() => $request->session()->get('message'),
+                'success' => fn() => $request->session()->get('success'),
+                'error' => fn() => $request->session()->get('error')
             ]
         ]);
     }

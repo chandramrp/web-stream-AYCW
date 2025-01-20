@@ -18,6 +18,7 @@ export default function Navbar() {
             auth: auth,
             user: auth?.user,
             role: auth?.user?.role,
+            status: auth?.user?.status,
             isAdmin: auth?.user?.is_admin,
         });
     }, [auth]);
@@ -53,6 +54,7 @@ export default function Navbar() {
         isAuthenticated,
         user,
         role: user?.role,
+        status: user?.status,
         isAdmin: user?.is_admin,
     });
 
