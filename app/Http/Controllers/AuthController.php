@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -35,8 +36,7 @@ class AuthController extends Controller
                     'user_role' => $user->role,
                ]);
 
-               return redirect()->intended(route('home'))
-                    ->with('success', 'Registrasi berhasil! Selamat datang!');
+               return redirect()->route('home');
           } catch (\Exception $e) {
                Log::error('Registration error: ' . $e->getMessage());
                return back()
@@ -79,9 +79,9 @@ class AuthController extends Controller
                }
 
                Log::warning('Failed login attempt', ['email' => $request->email]);
-               return back()->withErrors([
-                    'email' => 'Email atau password salah.',
-               ])->withInput($request->except('password'));
+               throw ValidationException::withMessages([
+                    'email' => ['Email atau password salah.'],
+               ]);
 
           } catch (\Exception $e) {
                Log::error('Login error', [

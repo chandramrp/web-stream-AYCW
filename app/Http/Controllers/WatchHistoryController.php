@@ -12,33 +12,49 @@ class WatchHistoryController extends Controller
 {
      public function index()
      {
-          $watchHistory = WatchHistory::with('movie')
+          $histories = WatchHistory::with('movie')
                ->where('user_id', Auth::id())
-               ->orderBy('last_watched_at', 'desc')
-               ->get();
+               ->latest()
+               ->get()
+               ->map(function ($history) {
+                    return [
+                         'id' => $history->id,
+                         'movie' => [
+                              'id' => $history->movie->id,
+                              'title' => $history->movie->title,
+                              'poster_url' => $history->movie->poster_url,
+                              'year' => $history->movie->year,
+                              'duration' => $history->movie->duration,
+                              'genres' => $history->movie->genres,
+                         ],
+                         'progress' => $history->progress,
+                         'last_watched_at' => $history->updated_at->diffForHumans(),
+                    ];
+               });
 
           return Inertia::render('User/History', [
-               'watchHistory' => $watchHistory
+               'histories' => $histories
           ]);
      }
 
-     public function store(Request $request, Movie $movie)
+     public function store(Request $request)
      {
-          $history = WatchHistory::firstOrNew([
-               'user_id' => Auth::id(),
-               'movie_id' => $movie->id,
+          $validated = $request->validate([
+               'movie_id' => 'required|exists:movies,id',
+               'progress' => 'required|numeric|min:0|max:100',
           ]);
 
-          if (!$history->exists) {
-               $history->watched_at = now();
-          }
+          WatchHistory::updateOrCreate(
+               [
+                    'user_id' => Auth::id(),
+                    'movie_id' => $validated['movie_id'],
+               ],
+               [
+                    'progress' => $validated['progress'],
+               ]
+          );
 
-          $history->updateProgress($request->input('duration', 0));
-
-          return response()->json([
-               'message' => 'Progress updated successfully',
-               'history' => $history
-          ]);
+          return response()->json(['message' => 'Progress updated successfully']);
      }
 
      public function destroy(WatchHistory $history)
@@ -50,6 +66,6 @@ class WatchHistoryController extends Controller
 
           $history->delete();
 
-          return redirect()->back()->with('success', 'Riwayat tontonan berhasil dihapus');
+          return back()->with('message', 'Riwayat berhasil dihapus');
      }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
@@ -13,13 +14,13 @@ class UserController extends Controller
      public function settings()
      {
           return Inertia::render('User/Settings', [
-               'user' => auth()->user()
+               'user' => Auth::user()
           ]);
      }
 
      public function updateProfile(Request $request)
      {
-          $user = auth()->user();
+          $user = Auth::user();
 
           $validated = $request->validate([
                'name' => 'required|string|max:255',
@@ -61,6 +62,7 @@ class UserController extends Controller
 
           $user->save();
 
-          return back()->with('success', 'Profil berhasil diperbarui!');
+          return redirect()->route('home')
+               ->with('message', 'Profil berhasil diperbarui!');
      }
 }

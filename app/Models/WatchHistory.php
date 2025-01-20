@@ -2,24 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WatchHistory extends Model
 {
+     use HasFactory;
+
      protected $fillable = [
           'user_id',
           'movie_id',
-          'watch_duration',
-          'watched_at',
-          'last_watched_at',
-          'completed'
+          'progress',
      ];
 
      protected $casts = [
-          'watched_at' => 'datetime',
-          'last_watched_at' => 'datetime',
-          'completed' => 'boolean'
+          'progress' => 'float',
      ];
 
      public function user(): BelongsTo
@@ -35,9 +33,7 @@ class WatchHistory extends Model
      // Helper method untuk mengupdate progress menonton
      public function updateProgress(int $duration): void
      {
-          $this->watch_duration = $duration;
-          $this->last_watched_at = now();
-          $this->completed = $duration >= $this->movie->duration;
+          $this->progress = $duration;
           $this->save();
      }
 }

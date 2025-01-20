@@ -77,6 +77,9 @@ Route::middleware('auth')->group(function () {
             return Inertia::render('User/Watchlist');
         })->name('watchlist');
 
+        Route::get('/history', [WatchHistoryController::class, 'index'])
+            ->name('user.history');
+
         Route::get('/settings', [UserController::class, 'settings'])
             ->name('user.settings');
 
@@ -84,10 +87,9 @@ Route::middleware('auth')->group(function () {
             ->name('user.settings.update');
     });
 
-    // Watch History routes
-    Route::get('/user/history', [WatchHistoryController::class, 'index'])->name('user.history');
-    Route::post('/movies/{movie}/watch-progress', [WatchHistoryController::class, 'store'])->name('watch-history.store');
-    Route::delete('/watch-history/{history}', [WatchHistoryController::class, 'destroy'])->name('watch-history.destroy');
+    // Watch History Routes
+    Route::post('/watch-history', [WatchHistoryController::class, 'store'])
+        ->name('watch-history.store');
 });
 
 // Admin Routes (Only for admin users)
