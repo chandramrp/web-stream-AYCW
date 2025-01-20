@@ -91,14 +91,16 @@ export default function Dashboard({
         <MainLayout user={auth.user}>
             <Head title="Dashboard Admin" />
 
-            <div className="container mx-auto px-4 py-8">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-2xl font-bold text-white">
-                        Dashboard Admin
-                    </h1>
-                    <div className="flex items-center text-slate-400">
-                        <FaCalendarAlt className="w-4 h-4 mr-2" />
-                        <span>{new Date().toLocaleDateString()}</span>
+            <div className="min-h-screen bg-slate-900 pt-20">
+                <div className="container mx-auto px-4 py-8">
+                    <div className="flex justify-between items-center mb-8">
+                        <h1 className="text-3xl font-bold text-white">
+                            Dashboard Admin
+                        </h1>
+                        <div className="flex items-center text-slate-400">
+                            <FaCalendarAlt className="w-4 h-4 mr-2" />
+                            <span>{new Date().toLocaleDateString()}</span>
+                        </div>
                     </div>
                 </div>
 

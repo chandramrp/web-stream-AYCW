@@ -109,9 +109,13 @@ Route::middleware('auth')->group(function () {
 Route::group(['middleware' => ['auth', \App\Http\Middleware\AdminMiddleware::class], 'prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/movies', function () {
-        return Inertia::render('Admin/Movies');
-    })->name('movies');
+    // Movie Management Routes
+    Route::get('/movies', [\App\Http\Controllers\Admin\MovieController::class, 'index'])->name('movies');
+    Route::get('/movies/create', [\App\Http\Controllers\Admin\MovieController::class, 'create'])->name('movies.create');
+    Route::post('/movies', [\App\Http\Controllers\Admin\MovieController::class, 'store'])->name('movies.store');
+    Route::get('/movies/{movie}/edit', [\App\Http\Controllers\Admin\MovieController::class, 'edit'])->name('movies.edit');
+    Route::put('/movies/{movie}', [\App\Http\Controllers\Admin\MovieController::class, 'update'])->name('movies.update');
+    Route::delete('/movies/{movie}', [\App\Http\Controllers\Admin\MovieController::class, 'destroy'])->name('movies.destroy');
 
     Route::get('/users', function () {
         return Inertia::render('Admin/Users');

@@ -1,159 +1,217 @@
-import React from "react";
-import { Head } from "@inertiajs/react";
+import React, { useState } from "react";
+import { Head, router } from "@inertiajs/react";
 import MainLayout from "@/Layouts/MainLayout";
-import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+import {
+    FaPlus,
+    FaEdit,
+    FaTrash,
+    FaEye,
+    FaSearch,
+    FaFilter,
+} from "react-icons/fa";
 
-export default function Movies() {
-    // Dummy data untuk testing
-    const movies = [
-        {
-            id: 1,
-            title: "The Dark Knight",
-            genre: "Action, Crime, Drama",
-            year: 2008,
-            rating: 4.8,
-            status: "Published",
-        },
-        {
-            id: 2,
-            title: "Inception",
-            genre: "Action, Sci-Fi, Thriller",
-            year: 2010,
-            rating: 4.7,
-            status: "Published",
-        },
-        {
-            id: 3,
-            title: "Interstellar",
-            genre: "Adventure, Drama, Sci-Fi",
-            year: 2014,
-            rating: 4.6,
-            status: "Draft",
-        },
-    ];
+export default function Movies({ auth, movies, flash }) {
+    const [searchQuery, setSearchQuery] = useState("");
+    const [filterStatus, setFilterStatus] = useState("all");
+
+    const handleDelete = (movieId) => {
+        if (confirm("Apakah Anda yakin ingin menghapus film ini?")) {
+            router.post(`/admin/movies/${movieId}`, {
+                _method: "DELETE",
+            });
+        }
+    };
+
+    const filteredMovies = movies.filter((movie) => {
+        const matchesSearch = movie.title
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase());
+        const matchesStatus =
+            filterStatus === "all" || movie.status === filterStatus;
+        return matchesSearch && matchesStatus;
+    });
 
     return (
-        <MainLayout>
+        <MainLayout user={auth.user}>
             <Head title="Kelola Film" />
+            <div className="min-h-screen bg-slate-900 pt-20">
+                <div className="container mx-auto px-6 py-8">
+                    <div className="flex justify-between items-center mb-8">
+                        <h1 className="text-3xl font-bold text-white">
+                            Kelola Film
+                        </h1>
+                        <button
+                            onClick={() => router.visit("/admin/movies/create")}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center transition-colors duration-200"
+                        >
+                            <FaPlus className="mr-2" />
+                            Tambah Film
+                        </button>
+                    </div>
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-slate-800 overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-slate-200">
-                            {/* Header */}
-                            <div className="flex justify-between items-center mb-6">
-                                <h1 className="text-2xl font-semibold">
-                                    Kelola Film
-                                </h1>
-                                <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                    <FaPlus className="mr-2" />
-                                    Tambah Film
-                                </button>
-                            </div>
+                    {/* Flash Message */}
+                    {flash?.success && (
+                        <div className="bg-green-500 text-white px-6 py-4 rounded-lg mb-8">
+                            {flash.success}
+                        </div>
+                    )}
 
-                            {/* Search and Filter */}
-                            <div className="mb-6 flex gap-4">
+                    {/* Search and Filter */}
+                    <div className="flex flex-col md:flex-row gap-6 mb-8">
+                        <div className="flex-1">
+                            <div className="relative">
                                 <input
                                     type="text"
                                     placeholder="Cari film..."
-                                    className="flex-1 px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    value={searchQuery}
+                                    onChange={(e) =>
+                                        setSearchQuery(e.target.value)
+                                    }
+                                    className="w-full bg-slate-700 text-white rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                                 />
-                                <select className="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="">Semua Genre</option>
-                                    <option value="action">Action</option>
-                                    <option value="drama">Drama</option>
-                                    <option value="comedy">Comedy</option>
-                                </select>
-                                <select className="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="">Semua Status</option>
-                                    <option value="published">Published</option>
-                                    <option value="draft">Draft</option>
-                                </select>
+                                <FaSearch className="absolute left-4 top-3.5 text-slate-400" />
                             </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <FaFilter className="text-slate-400 text-lg" />
+                            <select
+                                value={filterStatus}
+                                onChange={(e) =>
+                                    setFilterStatus(e.target.value)
+                                }
+                                className="bg-slate-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                            >
+                                <option value="all">Semua Status</option>
+                                <option value="active">Aktif</option>
+                                <option value="inactive">Nonaktif</option>
+                                <option value="coming_soon">Coming Soon</option>
+                            </select>
+                        </div>
+                    </div>
 
-                            {/* Movies Table */}
-                            <div className="overflow-x-auto">
-                                <table className="w-full">
-                                    <thead>
-                                        <tr className="text-left border-b border-slate-700">
-                                            <th className="pb-3 pr-4">Judul</th>
-                                            <th className="pb-3 pr-4">Genre</th>
-                                            <th className="pb-3 pr-4">Tahun</th>
-                                            <th className="pb-3 pr-4">
-                                                Rating
-                                            </th>
-                                            <th className="pb-3 pr-4">
-                                                Status
-                                            </th>
-                                            <th className="pb-3">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {movies.map((movie) => (
-                                            <tr
-                                                key={movie.id}
-                                                className="border-b border-slate-700"
-                                            >
-                                                <td className="py-4 pr-4">
-                                                    {movie.title}
-                                                </td>
-                                                <td className="py-4 pr-4">
-                                                    {movie.genre}
-                                                </td>
-                                                <td className="py-4 pr-4">
-                                                    {movie.year}
-                                                </td>
-                                                <td className="py-4 pr-4">
-                                                    ★ {movie.rating}
-                                                </td>
-                                                <td className="py-4 pr-4">
-                                                    <span
-                                                        className={`px-2 py-1 rounded-full text-xs ${
-                                                            movie.status ===
-                                                            "Published"
-                                                                ? "bg-green-500/20 text-green-400"
-                                                                : "bg-yellow-500/20 text-yellow-400"
-                                                        }`}
-                                                    >
-                                                        {movie.status}
-                                                    </span>
-                                                </td>
-                                                <td className="py-4">
-                                                    <div className="flex gap-2">
-                                                        <button className="p-2 text-blue-400 hover:text-blue-300 transition-colors duration-200">
-                                                            <FaEdit />
-                                                        </button>
-                                                        <button className="p-2 text-red-400 hover:text-red-300 transition-colors duration-200">
-                                                            <FaTrash />
-                                                        </button>
+                    {/* Movies Table */}
+                    <div className="bg-slate-800 rounded-lg overflow-hidden shadow-xl">
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="bg-slate-700">
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-white">
+                                            Film
+                                        </th>
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-white">
+                                            Tahun
+                                        </th>
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-white">
+                                            Durasi
+                                        </th>
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-white">
+                                            Rating
+                                        </th>
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-white">
+                                            Status
+                                        </th>
+                                        <th className="px-6 py-4 text-right text-sm font-semibold text-white">
+                                            Aksi
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-700">
+                                    {filteredMovies.map((movie) => (
+                                        <tr
+                                            key={movie.id}
+                                            className="hover:bg-slate-700/50 transition-colors duration-200"
+                                        >
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center">
+                                                    <img
+                                                        src={movie.poster_url}
+                                                        alt={movie.title}
+                                                        className="w-12 h-16 object-cover rounded shadow-md"
+                                                    />
+                                                    <div className="ml-4">
+                                                        <div className="text-white font-medium">
+                                                            {movie.title}
+                                                        </div>
+                                                        <div className="text-slate-400 text-sm mt-1">
+                                                            {movie.genres.join(
+                                                                ", "
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {/* Pagination */}
-                            <div className="mt-6 flex justify-between items-center">
-                                <p className="text-sm text-slate-400">
-                                    Menampilkan 1-3 dari 3 film
-                                </p>
-                                <div className="flex gap-2">
-                                    <button
-                                        className="px-4 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition-colors duration-200"
-                                        disabled
-                                    >
-                                        Previous
-                                    </button>
-                                    <button
-                                        className="px-4 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition-colors duration-200"
-                                        disabled
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-300">
+                                                {movie.year}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-300">
+                                                {movie.duration} menit
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    {movie.rating}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span
+                                                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                                                        movie.status ===
+                                                        "active"
+                                                            ? "bg-green-100 text-green-800"
+                                                            : movie.status ===
+                                                              "coming_soon"
+                                                            ? "bg-yellow-100 text-yellow-800"
+                                                            : "bg-red-100 text-red-800"
+                                                    }`}
+                                                >
+                                                    {movie.status === "active"
+                                                        ? "Aktif"
+                                                        : movie.status ===
+                                                          "coming_soon"
+                                                        ? "Coming Soon"
+                                                        : "Nonaktif"}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center justify-end space-x-3">
+                                                    <button
+                                                        onClick={() =>
+                                                            router.visit(
+                                                                `/movies/${movie.id}/watch`
+                                                            )
+                                                        }
+                                                        className="text-slate-400 hover:text-white transition-colors duration-200"
+                                                        title="Tonton"
+                                                    >
+                                                        <FaEye className="text-lg" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            router.visit(
+                                                                `/admin/movies/${movie.id}/edit`
+                                                            )
+                                                        }
+                                                        className="text-slate-400 hover:text-white transition-colors duration-200"
+                                                        title="Edit"
+                                                    >
+                                                        <FaEdit className="text-lg" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                movie.id
+                                                            )
+                                                        }
+                                                        className="text-red-400 hover:text-red-300 transition-colors duration-200"
+                                                        title="Hapus"
+                                                    >
+                                                        <FaTrash className="text-lg" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
