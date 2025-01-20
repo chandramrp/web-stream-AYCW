@@ -15,8 +15,8 @@ const Footer = () => {
 
     const footerLinks = {
         layanan: [
-            { name: "Film Terbaru", href: "/movies/latest" },
-            { name: "Film Populer", href: "/movies/popular" },
+            { name: "Film Terbaru", href: "/" },
+            { name: "Film Populer", href: "/" },
             { name: "Genre", href: "/genres" },
             { name: "Watchlist", href: "/watchlist" },
         ],

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, usePage } from "@inertiajs/react";
+import { Link, usePage, router } from "@inertiajs/react";
 import { SearchIcon } from "./Icons";
 import SearchBar from "./SearchBar";
 import UserMenu from "./UserMenu";
@@ -35,8 +35,17 @@ export default function Navbar() {
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            console.log("Searching for:", searchQuery);
-            setSearchQuery("");
+            router.get(
+                "/",
+                {
+                    search: searchQuery.trim(),
+                },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                    only: ["movies"],
+                }
+            );
             setIsSearchVisible(false);
         }
     };
@@ -92,7 +101,7 @@ export default function Navbar() {
                     {/* Logo Section */}
                     <div className="flex-1 flex items-center">
                         <Link
-                            href={isAuthenticated ? "/movies/latest" : "/"}
+                            href={isAuthenticated ? "/" : "/"}
                             className="text-2xl font-caesar tracking-wide text-slate-200 hover:text-blue-400 transition-colors duration-200"
                         >
                             <div className="flex flex-col text-2lg tracking-tighter">

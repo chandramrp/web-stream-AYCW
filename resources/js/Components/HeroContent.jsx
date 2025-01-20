@@ -5,7 +5,7 @@ const HeroContent = () => {
     return (
         <div className="flex-1 max-w-2xl">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-                Unlimited movies, TV shows, and more
+                Unlimited movies, Anime shows, and more
             </h1>
             <p className="text-lg md:text-xl text-slate-300 mb-8">
                 Watch anywhere. Cancel anytime.

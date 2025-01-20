@@ -23,7 +23,7 @@ class RedirectIfAuthenticated
                          return redirect()->route('admin.dashboard');
                     }
 
-                    return redirect()->route('movies.latest');
+                    return redirect()->route('home');
                }
           }
 

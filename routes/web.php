@@ -5,11 +5,13 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WatchHistoryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Models\Movie;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\WatchController;
 
 // Public Routes
-Route::get('/', function () {
-    return Inertia::render('Home');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/watch/{movie}', [WatchController::class, 'show'])->name('watch.show');
 
 // Guest Routes (Only for non-authenticated users)
 Route::middleware('guest')->group(function () {
@@ -40,45 +42,28 @@ Route::middleware('auth')->group(function () {
         ->name('logout');
 
     // Movies Routes
-    Route::get('/movies/latest', function () {
-        return Inertia::render('Movies/Latest');
-    })->name('movies.latest');
-
     Route::get('/movies/{id}/watch', function ($id) {
-        // TODO: Fetch movie data from database
-        $movie = [
-            'id' => $id,
-            'title' => 'The Dark Knight',
-            'description' => 'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
-            'video_url' => 'https://example.com/video.mp4', // Ganti dengan URL video yang sebenarnya
-            'poster_url' => 'https://image.tmdb.org/t/p/original/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
-            'year' => 2008,
-            'duration' => '2h 32m',
-            'rating' => 9.0,
-            'genres' => ['Action', 'Crime', 'Drama', 'Thriller'],
-            'director' => 'Christopher Nolan',
-            'writer' => 'Jonathan Nolan, Christopher Nolan',
-            'cast' => ['Christian Bale', 'Heath Ledger', 'Aaron Eckhart', 'Michael Caine'],
-            'related_movies' => [
-                [
-                    'id' => 2,
-                    'title' => 'Batman Begins',
-                    'poster_url' => 'https://image.tmdb.org/t/p/w500/8RW2runSEc34IwKN2D1aPcJd2UL.jpg',
-                    'year' => 2005,
-                    'duration' => '2h 20m'
-                ],
-                [
-                    'id' => 3,
-                    'title' => 'The Dark Knight Rises',
-                    'poster_url' => 'https://image.tmdb.org/t/p/w500/hrJUZ5Jo2G3Czy391evhlxgbEdJ.jpg',
-                    'year' => 2012,
-                    'duration' => '2h 44m'
-                ]
-            ]
-        ];
+        $movie = Movie::findOrFail($id);
+
+        // Get related movies (same genre)
+        $relatedMovies = Movie::where('id', '!=', $movie->id)
+            ->whereJsonContains('genres', $movie->genres[0])
+            ->take(2)
+            ->get()
+            ->map(function ($movie) {
+                return [
+                    'id' => $movie->id,
+                    'title' => $movie->title,
+                    'poster_url' => $movie->poster_url,
+                    'year' => $movie->year,
+                    'duration' => $movie->duration . ' menit'
+                ];
+            });
 
         return Inertia::render('Movies/Watch', [
-            'movie' => $movie
+            'movie' => array_merge($movie->toArray(), [
+                'related_movies' => $relatedMovies
+            ])
         ]);
     })->name('movies.watch');
 

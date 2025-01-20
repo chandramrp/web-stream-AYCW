@@ -1,72 +1,41 @@
-import MainLayout from "../Layouts/MainLayout";
-import Hero from "../Components/Hero";
-import MovieGrid from "../Components/MovieGrid";
+import React from "react";
+import { Head } from "@inertiajs/react";
+import MainLayout from "@/Layouts/MainLayout";
+import Hero from "@/Components/Hero";
+import MovieGrid from "@/Components/MovieGrid";
+import TVDisplay from "@/Components/TVDisplay";
 
-// Sample data
-const sampleMovies = [
-    {
-        id: 1,
-        title: "The Dark Knight",
-        poster_url:
-            "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
-        rating: 8.9,
-        year: 2008,
-        genres: ["Action", "Crime", "Drama"],
-    },
-    {
-        id: 2,
-        title: "Inception",
-        poster_url:
-            "https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",
-        rating: 8.8,
-        year: 2010,
-        genres: ["Action", "Sci-Fi", "Thriller"],
-    },
-    {
-        id: 3,
-        title: "Interstellar",
-        poster_url:
-            "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
-        rating: 8.6,
-        year: 2014,
-        genres: ["Adventure", "Drama", "Sci-Fi"],
-    },
-    {
-        id: 4,
-        title: "The Shawshank Redemption",
-        poster_url:
-            "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
-        rating: 9.3,
-        year: 1994,
-        genres: ["Drama", "Crime"],
-    },
-    {
-        id: 5,
-        title: "Pulp Fiction",
-        poster_url:
-            "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg",
-        rating: 8.9,
-        year: 1994,
-        genres: ["Crime", "Drama"],
-    },
-    {
-        id: 6,
-        title: "The Matrix",
-        poster_url:
-            "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
-        rating: 8.7,
-        year: 1999,
-        genres: ["Action", "Sci-Fi"],
-    },
-];
-
-export default function Home() {
+export default function Home({ auth, movies, activeGenre }) {
     return (
-        <MainLayout>
-            <Hero />
-            <div className="bg-slate-900">
-                <MovieGrid title="Film Populer" movies={sampleMovies} />
-                <MovieGrid title="Film Terbaru" movies={sampleMovies} />
+        <MainLayout user={auth?.user}>
+            <Head title="Home" />
+
+            <Hero activeGenre={activeGenre} />
+
+            {/* Trailer Section */}
+            <div className="py-20 bg-slate-900/50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                            Film Terbaru
+                        </h2>
+                        <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                            Tonton trailer eksklusif dari film-film terbaru dan
+                            terpopuler minggu ini
+                        </p>
+                    </div>
+                    <TVDisplay />
+                </div>
+            </div>
+
+            {/* Movies Grid Section */}
+            <div className="py-12 bg-slate-900">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-2xl font-semibold text-slate-200 mb-8">
+                        Film Terpopuler
+                    </h2>
+                    <MovieGrid movies={movies} />
+                </div>
             </div>
         </MainLayout>
     );

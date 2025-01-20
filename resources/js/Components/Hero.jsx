@@ -1,9 +1,8 @@
 import React from "react";
 import HeroContent from "./HeroContent";
-import TVDisplay from "./TVDisplay";
 import GenreTags from "./GenreTags";
 
-const Hero = () => {
+const Hero = ({ activeGenre }) => {
     return (
         <div className="relative min-h-screen">
             {/* Background Image dengan Overlay */}
@@ -20,9 +19,8 @@ const Hero = () => {
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
                 <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
                     <HeroContent />
-                    <TVDisplay />
                 </div>
-                <GenreTags />
+                <GenreTags activeGenre={activeGenre} />
             </div>
         </div>
     );

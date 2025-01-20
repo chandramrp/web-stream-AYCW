@@ -35,7 +35,7 @@ class AuthController extends Controller
                     'user_role' => $user->role,
                ]);
 
-               return redirect()->intended(route('movies.latest'))
+               return redirect()->intended(route('home'))
                     ->with('success', 'Registrasi berhasil! Selamat datang!');
           } catch (\Exception $e) {
                Log::error('Registration error: ' . $e->getMessage());
@@ -74,8 +74,8 @@ class AuthController extends Controller
                          return redirect()->intended(route('admin.dashboard'));
                     }
 
-                    Log::info('Redirecting regular user to movies page');
-                    return redirect()->intended(route('movies.latest'));
+                    Log::info('Redirecting regular user to home');
+                    return redirect()->intended(route('home'));
                }
 
                Log::warning('Failed login attempt', ['email' => $request->email]);
