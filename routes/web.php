@@ -117,9 +117,12 @@ Route::group(['middleware' => ['auth', \App\Http\Middleware\AdminMiddleware::cla
     Route::put('/movies/{movie}', [\App\Http\Controllers\Admin\MovieController::class, 'update'])->name('movies.update');
     Route::delete('/movies/{movie}', [\App\Http\Controllers\Admin\MovieController::class, 'destroy'])->name('movies.destroy');
 
-    Route::get('/users', function () {
-        return Inertia::render('Admin/Users');
-    })->name('users');
+    // User Management Routes
+    Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users');
+    Route::post('/users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
+    Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+    Route::post('/users/{user}/status', [\App\Http\Controllers\Admin\UserController::class, 'updateStatus'])->name('users.status');
+    Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/statistics', function () {
         return Inertia::render('Admin/Statistics');
