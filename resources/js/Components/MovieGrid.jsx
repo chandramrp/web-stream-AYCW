@@ -19,20 +19,28 @@ export default function MovieGrid({ movies }) {
                         />
                         {/* Overlay on hover */}
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center text-white p-4">
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full mb-4 transition-colors duration-200">
+                            <Link
+                                href={`/movies/${movie.id}/watch`}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full mb-4 transition-colors duration-200"
+                            >
                                 Tonton
-                            </button>
+                            </Link>
                             <p className="text-sm text-center">
-                                Klik untuk detail lebih lanjut
+                                Klik untuk menonton film
                             </p>
                         </div>
                     </div>
 
                     {/* Movie Info */}
                     <div className="p-4">
-                        <h3 className="text-lg font-semibold text-slate-200 mb-2 truncate">
-                            {movie.title}
-                        </h3>
+                        <Link
+                            href={`/movies/${movie.id}/watch`}
+                            className="block"
+                        >
+                            <h3 className="text-lg font-semibold text-slate-200 mb-2 truncate hover:text-blue-400 transition-colors">
+                                {movie.title}
+                            </h3>
+                        </Link>
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center">
                                 <FaStar className="text-yellow-400 w-4 h-4 mr-1" />

@@ -23,25 +23,5 @@ class DatabaseSeeder extends Seeder
             'last_login_at' => now(),
         ]);
 
-        // Create regular users for testing
-        \App\Models\User::create([
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => Hash::make('password123'),
-            'role' => 'user',
-            'status' => 'active',
-            'email_verified_at' => now(),
-            'last_login_at' => now(),
-        ]);
-
-        \App\Models\User::create([
-            'name' => 'Jane Smith',
-            'email' => 'jane@example.com',
-            'password' => Hash::make('password123'),
-            'role' => 'user',
-            'status' => 'active',
-            'email_verified_at' => now(),
-            'last_login_at' => now(),
-        ]);
     }
 }

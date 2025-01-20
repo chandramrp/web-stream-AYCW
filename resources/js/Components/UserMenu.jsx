@@ -9,6 +9,7 @@ import {
     FaFilm,
     FaUsers,
     FaChartBar,
+    FaChevronDown,
 } from "react-icons/fa";
 
 export default function UserMenu() {
@@ -81,38 +82,96 @@ export default function UserMenu() {
               },
           ];
 
+    // Function untuk memformat nama user
+    const formatName = (name) => {
+        if (!name) return "";
+        const words = name.split(" ");
+        if (words.length === 1) return name;
+        if (words.length === 2) return name;
+        return `${words[0]} ${words[1].charAt(0)}.`;
+    };
+
+    // Function untuk mendapatkan URL avatar
+    const getAvatarUrl = () => {
+        if (!user?.avatar) return null;
+        if (user.avatar.startsWith("http")) return user.avatar;
+        return `/storage/${user.avatar}`;
+    };
+
     return (
         <div className="relative" ref={menuRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors duration-200"
+                className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors duration-200 group"
             >
-                {user?.avatar ? (
-                    <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="w-8 h-8 rounded-full object-cover"
-                    />
-                ) : (
-                    <FaUserCircle className="w-8 h-8" />
-                )}
-                <span>{user?.name}</span>
-                {isAdmin && (
-                    <span className="ml-2 px-2 py-0.5 text-xs bg-blue-500 text-white rounded-full">
-                        Admin
-                    </span>
-                )}
+                <div className="flex items-center">
+                    <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-700 flex items-center justify-center">
+                        {getAvatarUrl() ? (
+                            <img
+                                src={getAvatarUrl()}
+                                alt={user?.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = null;
+                                    e.target.parentElement.innerHTML =
+                                        '<div class="w-full h-full flex items-center justify-center"><FaUserCircle className="w-5 h-5 text-slate-400" /></div>';
+                                }}
+                            />
+                        ) : (
+                            <FaUserCircle className="w-5 h-5 text-slate-400" />
+                        )}
+                    </div>
+                    <div className="ml-2 flex items-center">
+                        <span className="max-w-[150px] truncate">
+                            {formatName(user?.name)}
+                        </span>
+                        <FaChevronDown className="w-4 h-4 ml-1 group-hover:text-blue-400 transition-colors" />
+                        {isAdmin && (
+                            <span className="ml-2 px-2 py-0.5 text-xs bg-blue-500 text-white rounded-full">
+                                Admin
+                            </span>
+                        )}
+                    </div>
+                </div>
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-48 py-2 bg-slate-800 rounded-lg shadow-xl border border-slate-700">
+                <div className="absolute right-0 mt-2 w-64 py-2 bg-slate-800 rounded-lg shadow-xl border border-slate-700">
                     {/* User Info */}
-                    <div className="px-4 py-2 border-b border-slate-700">
-                        <p className="text-sm text-slate-200">{user?.name}</p>
-                        <p className="text-xs text-slate-400">{user?.email}</p>
-                        <p className="text-xs text-blue-400 mt-1">
-                            {user?.role === "admin" ? "Administrator" : "User"}
-                        </p>
+                    <div className="px-4 py-3 border-b border-slate-700">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-700 flex items-center justify-center">
+                                {getAvatarUrl() ? (
+                                    <img
+                                        src={getAvatarUrl()}
+                                        alt={user?.name}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = null;
+                                            e.target.parentElement.innerHTML =
+                                                '<div class="w-full h-full flex items-center justify-center"><FaUserCircle className="w-6 h-6 text-slate-400" /></div>';
+                                        }}
+                                    />
+                                ) : (
+                                    <FaUserCircle className="w-6 h-6 text-slate-400" />
+                                )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm text-slate-200 font-medium truncate">
+                                    {user?.name}
+                                </p>
+                                <p className="text-xs text-slate-400 truncate mt-0.5">
+                                    {user?.email}
+                                </p>
+                                <p className="text-xs text-blue-400 mt-1">
+                                    {user?.role === "admin"
+                                        ? "Administrator"
+                                        : "User"}
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Menu Items */}

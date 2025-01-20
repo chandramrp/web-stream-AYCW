@@ -52,9 +52,12 @@ const MovieCard = ({ movie }) => {
 
                 {/* Play Button */}
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
-                    <button className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-600/90 text-white shadow-lg backdrop-blur-sm transition-transform hover:scale-110 hover:bg-blue-700">
+                    <Link
+                        href={`/movies/${movie.id}/watch`}
+                        className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-600/90 text-white shadow-lg backdrop-blur-sm transition-transform hover:scale-110 hover:bg-blue-700"
+                    >
                         <FaPlayCircle className="h-8 w-8" />
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Movie Info */}
@@ -79,10 +82,10 @@ const MovieCard = ({ movie }) => {
 
             {/* Link overlay */}
             <Link
-                href={`/movies/${movie.id}`}
+                href={`/movies/${movie.id}/watch`}
                 className="absolute inset-0 z-20 bg-transparent"
             >
-                <span className="sr-only">Lihat {movie.title}</span>
+                <span className="sr-only">Tonton {movie.title}</span>
             </Link>
         </div>
     );
