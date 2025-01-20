@@ -107,9 +107,7 @@ Route::middleware('auth')->group(function () {
 
 // Admin Routes (Only for admin users)
 Route::group(['middleware' => ['auth', \App\Http\Middleware\AdminMiddleware::class], 'prefix' => 'admin', 'as' => 'admin.'], function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Admin/Dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/movies', function () {
         return Inertia::render('Admin/Movies');

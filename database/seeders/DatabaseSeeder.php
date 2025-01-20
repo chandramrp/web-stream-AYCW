@@ -23,5 +23,20 @@ class DatabaseSeeder extends Seeder
             'last_login_at' => now(),
         ]);
 
+        // Create regular user
+        \App\Models\User::create([
+            'name' => 'John Doe',
+            'email' => 'user@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'user',
+            'status' => 'active',
+            'email_verified_at' => now(),
+            'last_login_at' => now(),
+        ]);
+
+        // Seed movies
+        $this->call([
+            MovieSeeder::class,
+        ]);
     }
 }
