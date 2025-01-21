@@ -2,56 +2,35 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Movie extends Model
 {
-     use HasFactory;
-
      protected $fillable = [
           'title',
           'description',
-          'poster_url',
           'video_url',
+          'poster_url',
           'year',
           'duration',
           'rating',
           'genres',
-          'cast',
           'director',
           'writer',
-          'status',
-          'source_type',
+          'cast',
+          'is_featured',
+          'status'
      ];
 
      protected $casts = [
           'genres' => 'array',
           'cast' => 'array',
-          'year' => 'integer',
-          'duration' => 'integer',
-          'rating' => 'float',
+          'is_featured' => 'boolean',
+          'rating' => 'decimal:1'
      ];
 
-     // Accessor untuk URL lengkap poster
-     public function getPosterUrlAttribute($value)
-     {
-          if (!$value)
-               return null;
-          return $this->source_type === 'local' ? asset('storage/' . $value) : $value;
-     }
-
-     // Accessor untuk URL lengkap video
-     public function getVideoUrlAttribute($value)
-     {
-          if (!$value)
-               return null;
-          return $this->source_type === 'local' ? asset('storage/' . $value) : $value;
-     }
-
-     // Relasi dengan WatchHistory
-     public function watchHistories()
+     public function watchHistories(): HasMany
      {
           return $this->hasMany(WatchHistory::class);
      }

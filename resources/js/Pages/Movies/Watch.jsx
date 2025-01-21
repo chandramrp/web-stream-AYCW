@@ -1,10 +1,11 @@
 import React from "react";
 import { Head } from "@inertiajs/react";
 import MainLayout from "@/Layouts/MainLayout";
-import VideoPlayer from "@/Components/VideoPlayer";
 import { FaArrowLeft, FaHeart, FaShareAlt, FaPlus } from "react-icons/fa";
 
 export default function Watch({ movie }) {
+    const isGoogleDriveVideo = movie?.video_url?.includes("drive.google.com");
+
     return (
         <MainLayout>
             <Head title={`Nonton ${movie?.title || "Film"}`} />
@@ -12,10 +13,23 @@ export default function Watch({ movie }) {
             <div className="min-h-screen bg-slate-900 pt-16">
                 {/* Video Player Section */}
                 <div className="w-full max-w-7xl mx-auto">
-                    <VideoPlayer
-                        videoUrl={movie?.video_url}
-                        poster={movie?.poster_url}
-                    />
+                    {isGoogleDriveVideo ? (
+                        <div className="relative pt-[56.25%]">
+                            <iframe
+                                src={movie.video_url}
+                                className="absolute top-0 left-0 w-full h-full"
+                                allow="autoplay; encrypted-media; picture-in-picture"
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                    ) : (
+                        <video
+                            src={movie?.video_url}
+                            poster={movie?.poster_url}
+                            controls
+                            className="w-full aspect-video bg-slate-800"
+                        />
+                    )}
                 </div>
 
                 {/* Movie Info Section */}
@@ -56,9 +70,9 @@ export default function Watch({ movie }) {
                                 <div className="flex items-center space-x-4 text-sm text-slate-400">
                                     <span>{movie?.year}</span>
                                     <span>•</span>
-                                    <span>{movie?.duration}</span>
+                                    <span>{movie?.duration} menit</span>
                                     <span>•</span>
-                                    <span>{movie?.rating} Rating</span>
+                                    <span>{movie?.rating}★</span>
                                 </div>
 
                                 <p className="text-slate-300 leading-relaxed">

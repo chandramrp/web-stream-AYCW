@@ -1,101 +1,89 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
-import { FaFilm, FaUsers, FaChartLine, FaSignOutAlt } from "react-icons/fa";
-import { router } from "@inertiajs/react";
+import { FaUsers, FaFilm, FaDashboard, FaBars, FaTimes } from "react-icons/fa";
 
 export default function AdminLayout({ children }) {
+    const [sidebarOpen, setSidebarOpen] = useState(true);
     const { auth } = usePage().props;
 
-    const navigation = [
-        {
-            name: "Film",
-            href: "/admin/movies",
-            icon: FaFilm,
-            current: window.location.pathname.startsWith("/admin/movies"),
-        },
-        {
-            name: "Pengguna",
-            href: "/admin/users",
-            icon: FaUsers,
-            current: window.location.pathname.startsWith("/admin/users"),
-        },
-        {
-            name: "Statistik",
-            href: "/admin/statistics",
-            icon: FaChartLine,
-            current: window.location.pathname.startsWith("/admin/statistics"),
-        },
+    const menuItems = [
+        { icon: FaDashboard, label: "Dashboard", href: "/admin/dashboard" },
+        { icon: FaFilm, label: "Manajemen Film", href: "/admin/movies" },
+        { icon: FaUsers, label: "Manajemen User", href: "/admin/users" },
     ];
-
-    const handleLogout = () => {
-        router.post("/logout");
-    };
 
     return (
         <div className="min-h-screen bg-slate-900">
             {/* Sidebar */}
-            <div className="fixed inset-y-0 left-0 w-64 bg-slate-800">
-                <div className="flex h-16 items-center justify-center">
-                    <Link
-                        href="/"
-                        className="text-2xl font-caesar tracking-wide text-slate-200 hover:text-blue-400 transition-colors duration-200"
-                    >
-                        <div className="flex flex-col text-2lg tracking-tighter">
-                            <span className="block mb-0 p-0 h-5">A Y</span>
-                            <span className="block mt-0 p-0 h-fit">C W</span>
-                        </div>
-                    </Link>
-                </div>
-
-                <nav className="mt-5 px-2 space-y-1">
-                    {navigation.map((item) => (
+            <aside
+                className={`fixed top-0 left-0 z-40 w-64 h-screen transition-transform ${
+                    sidebarOpen ? "translate-x-0" : "-translate-x-full"
+                } bg-slate-800 border-r border-slate-700`}
+            >
+                <div className="h-full px-3 py-4 overflow-y-auto">
+                    <div className="flex items-center justify-between mb-6 px-2">
                         <Link
-                            key={item.name}
-                            href={item.href}
-                            className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg ${
-                                item.current
-                                    ? "bg-blue-600 text-white"
-                                    : "text-slate-300 hover:bg-slate-700 hover:text-white"
-                            }`}
+                            href="/admin/dashboard"
+                            className="text-2xl font-caesar text-slate-200"
                         >
-                            <item.icon
-                                className={`mr-3 h-5 w-5 flex-shrink-0 ${
-                                    item.current
-                                        ? "text-white"
-                                        : "text-slate-400 group-hover:text-white"
-                                }`}
-                            />
-                            {item.name}
+                            AYCW Admin
                         </Link>
-                    ))}
-                </nav>
-            </div>
+                        <button
+                            onClick={() => setSidebarOpen(false)}
+                            className="lg:hidden text-slate-400 hover:text-slate-200"
+                        >
+                            <FaTimes size={24} />
+                        </button>
+                    </div>
+                    <ul className="space-y-2">
+                        {menuItems.map((item, index) => (
+                            <li key={index}>
+                                <Link
+                                    href={item.href}
+                                    className="flex items-center p-3 text-slate-300 rounded-lg hover:bg-slate-700 group transition-colors duration-200"
+                                >
+                                    <item.icon className="w-5 h-5 text-slate-400 group-hover:text-blue-400 transition-colors duration-200" />
+                                    <span className="ml-3">{item.label}</span>
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </aside>
 
             {/* Main Content */}
-            <div className="pl-64">
+            <div
+                className={`p-4 ${
+                    sidebarOpen ? "lg:ml-64" : ""
+                } transition-all duration-300`}
+            >
                 {/* Header */}
-                <header className="bg-slate-800 shadow">
-                    <div className="flex justify-between items-center h-16 px-8">
-                        <h1 className="text-xl font-semibold text-white">
-                            Admin Panel
-                        </h1>
-                        <div className="flex items-center space-x-4">
-                            <span className="text-slate-300">
-                                {auth.user.name}
-                            </span>
-                            <button
-                                onClick={handleLogout}
-                                className="flex items-center text-slate-300 hover:text-white transition-colors"
-                            >
-                                <FaSignOutAlt className="w-4 h-4 mr-2" />
-                                Logout
-                            </button>
-                        </div>
+                <header className="mb-6 bg-slate-800/50 backdrop-blur-sm rounded-lg p-4 flex items-center justify-between">
+                    <button
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                        className="text-slate-400 hover:text-slate-200 transition-colors duration-200"
+                    >
+                        <FaBars size={24} />
+                    </button>
+                    <div className="flex items-center space-x-4">
+                        <span className="text-slate-300">
+                            {auth?.user?.name}
+                        </span>
+                        <Link
+                            href="/logout"
+                            method="post"
+                            as="button"
+                            className="text-sm text-red-400 hover:text-red-300 transition-colors duration-200"
+                        >
+                            Logout
+                        </Link>
                     </div>
                 </header>
 
-                {/* Page Content */}
-                <main>{children}</main>
+                {/* Content */}
+                <main className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-6">
+                    {children}
+                </main>
             </div>
         </div>
     );
